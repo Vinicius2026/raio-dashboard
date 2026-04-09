@@ -422,3 +422,66 @@ export async function getSelectedProductsByUserId(userId: string) {
   
   return data
 }
+
+// ========== MENSAGENS DE CONTATO ==========
+
+export interface ContactMessage {
+  id: number
+  name: string
+  email: string
+  message: string
+  is_read: boolean
+  ip_address: string | null
+  user_agent: string | null
+  created_at: string
+}
+
+// Buscar todas as mensagens de contato (admin)
+export async function getContactMessages(options?: {
+  onlyUnread?: boolean
+  limit?: number
+}) {
+  let query = supabase
+    .from('contact_messages')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (options?.onlyUnread) {
+    query = query.eq('is_read', false)
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    console.error('Erro ao buscar mensagens:', error)
+    return []
+  }
+
+  return data as ContactMessage[]
+}
+
+// Marcar mensagem como lida
+export async function markMessageAsRead(messageId: number) {
+  const { data, error } = await supabase
+    .from('contact_messages')
+    .update({ is_read: true })
+    .eq('id', messageId)
+    .select()
+    .single()
+
+  return { data, error }
+}
+
+// Deletar mensagem
+export async function deleteContactMessage(messageId: number) {
+  const { error } = await supabase
+    .from('contact_messages')
+    .delete()
+    .eq('id', messageId)
+
+  return { error }
+}

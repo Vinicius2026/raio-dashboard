@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { signIn, getUserProfile } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,32 +17,32 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    
+
     try {
-      const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
+      const { data, error: signInError } = await signIn(email, password);
+
       if (signInError) {
-        setError(signInError.message === "Invalid login credentials" 
-          ? "Email ou senha incorretos" 
+        setError(signInError.message === "Invalid login credentials"
+          ? "Email ou senha incorretos"
           : "Erro ao fazer login. Tente novamente.");
         setIsLoading(false);
         return;
       }
-      
+
       if (data?.session) {
-        router.push("/dashboard");
-        router.refresh();
+        // Check user role to redirect admins properly
+        const profile = await getUserProfile(data.session.user.id);
+        if (profile?.role === "admin") {
+          router.push("/admin2626/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (err) {
       setError("Erro inesperado. Tente novamente.");
       setIsLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen app-bg flex items-center justify-center px-4">

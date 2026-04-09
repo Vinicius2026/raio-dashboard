@@ -11,7 +11,11 @@ import {
   getPendingAffiliateRequests,
   getAllAffiliateRequests,
   AffiliateRequest,
-  getSelectedProductsByUserId
+  getSelectedProductsByUserId,
+  getContactMessages,
+  markMessageAsRead,
+  deleteContactMessage,
+  ContactMessage
 } from "@/lib/supabase";
 import { getProduct } from "@/lib/products-data";
 import { 
@@ -28,10 +32,14 @@ import {
   Mail,
   Phone,
   TrendingUp,
-  Calendar
+  Calendar,
+  MessageSquare,
+  Eye,
+  EyeOff,
+  Trash2
 } from "lucide-react";
 
-type AdminTab = "users" | "affiliates";
+type AdminTab = "users" | "affiliates" | "messages";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -48,6 +56,11 @@ export default function AdminDashboardPage() {
   // Estados para afiliações
   const [affiliateRequests, setAffiliateRequests] = useState<AffiliateRequest[]>([]);
   const [selectedAffiliate, setSelectedAffiliate] = useState<AffiliateRequest | null>(null);
+  
+  // Estados para mensagens
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   useEffect(() => {
     checkAdminAuth();
@@ -58,6 +71,8 @@ export default function AdminDashboardPage() {
       loadUsers();
     } else if (activeTab === "affiliates" && affiliateRequests.length === 0) {
       loadAffiliateRequests();
+    } else if (activeTab === "messages" && messages.length === 0) {
+      loadMessages();
     }
   }, [activeTab]);
 
@@ -94,6 +109,30 @@ export default function AdminDashboardPage() {
     setAffiliateRequests(requests);
   }
 
+  async function loadMessages() {
+    setLoadingMessages(true);
+    const msgs = await getContactMessages();
+    setMessages(msgs);
+    setLoadingMessages(false);
+  }
+
+  async function handleToggleRead(msg: ContactMessage) {
+    if (!msg.is_read) {
+      await markMessageAsRead(msg.id);
+    }
+    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: !m.is_read } : m));
+    if (selectedMessage?.id === msg.id) {
+      setSelectedMessage({ ...msg, is_read: !msg.is_read });
+    }
+  }
+
+  async function handleDeleteMessage(id: number) {
+    if (!confirm("Tem certeza que deseja excluir esta mensagem?")) return;
+    await deleteContactMessage(id);
+    setMessages(prev => prev.filter(m => m.id !== id));
+    if (selectedMessage?.id === id) setSelectedMessage(null);
+  }
+
   async function handleUserClick(user: UserProfile) {
     setSelectedUser(user);
     setLoadingUserProducts(true);
@@ -122,6 +161,7 @@ export default function AdminDashboardPage() {
 
   const pendingCount = affiliateRequests.filter(r => r.status === 'pending').length;
   const approvedCount = affiliateRequests.filter(r => r.status === 'approved').length;
+  const unreadCount = messages.filter(m => !m.is_read).length;
 
   return (
     <div className="min-h-screen bg-[#050505] text-white relative overflow-hidden">
@@ -166,6 +206,22 @@ export default function AdminDashboardPage() {
                 {pendingCount > 0 && (
                   <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
                     {pendingCount}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("messages")}
+                className={`px-5 py-2 rounded-full text-xs font-medium transition-all duration-300 flex items-center gap-2 ${
+                  activeTab === "messages" 
+                  ? "bg-white text-black shadow-lg shadow-white/10" 
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                Mensagens
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">
+                    {unreadCount}
                   </span>
                 )}
               </button>
@@ -539,6 +595,170 @@ export default function AdminDashboardPage() {
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Tab: Mensagens */}
+        {activeTab === "messages" && (
+          <div className="animate-in fade-in duration-500">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2">Mensagens de Contato</h1>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-white/50">
+                  {messages.length} mensagens totais
+                </span>
+                <span className="text-white/30">•</span>
+                <span className="text-blue-400">
+                  {unreadCount} não lidas
+                </span>
+              </div>
+            </div>
+
+            {loadingMessages ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="w-10 h-10 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Lista de Mensagens */}
+                <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
+                  {messages.length === 0 ? (
+                    <div className="text-center py-12 bg-white/[0.03] border border-white/5 rounded-2xl">
+                      <MessageSquare className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                      <p className="text-white/40">Nenhuma mensagem recebida</p>
+                    </div>
+                  ) : (
+                    messages.map((msg) => (
+                      <button
+                        key={msg.id}
+                        onClick={() => {
+                          setSelectedMessage(msg);
+                          if (!msg.is_read) handleToggleRead(msg);
+                        }}
+                        className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.01] ${
+                          selectedMessage?.id === msg.id
+                            ? "bg-gradient-to-r from-white/10 to-white/5 border-white/30 shadow-lg"
+                            : msg.is_read
+                            ? "bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10"
+                            : "bg-blue-500/[0.05] border-blue-500/20 hover:bg-blue-500/[0.08] hover:border-blue-500/30"
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center border ${
+                            msg.is_read
+                              ? "bg-white/5 border-white/10"
+                              : "bg-blue-500/10 border-blue-500/30"
+                          }`}>
+                            {msg.is_read ? (
+                              <Eye className="w-5 h-5 text-white/30" />
+                            ) : (
+                              <Mail className="w-5 h-5 text-blue-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className={`font-bold truncate ${
+                                msg.is_read ? "text-white/70" : "text-white"
+                              }`}>
+                                {msg.name}
+                              </h3>
+                              {!msg.is_read && (
+                                <span className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-sm text-white/40 truncate mb-1">{msg.email}</p>
+                            <p className="text-sm text-white/30 line-clamp-2">{msg.message}</p>
+                            <p className="text-xs text-white/20 mt-2">
+                              {new Date(msg.created_at).toLocaleDateString()} às{" "}
+                              {new Date(msg.created_at).toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                {/* Detalhes da Mensagem */}
+                <div className="sticky top-24 h-fit">
+                  {selectedMessage ? (
+                    <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6">
+                      <div className="flex items-start justify-between mb-6">
+                        <div>
+                          <h2 className="text-2xl font-bold mb-1">{selectedMessage.name}</h2>
+                          <p className="text-white/50">{selectedMessage.email}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleRead(selectedMessage)}
+                            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                            title={selectedMessage.is_read ? "Marcar como não lida" : "Marcar como lida"}
+                          >
+                            {selectedMessage.is_read ? (
+                              <EyeOff className="w-4 h-4 text-white/40" />
+                            ) : (
+                              <Eye className="w-4 h-4 text-blue-400" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMessage(selectedMessage.id)}
+                            className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Excluir mensagem"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-400/60" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-5">
+                        <div>
+                          <label className="text-sm text-white/40 mb-1 block">Mensagem</label>
+                          <p className="text-white/80 text-sm bg-white/5 p-4 rounded-xl leading-relaxed whitespace-pre-wrap">
+                            {selectedMessage.message}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm text-white/40 mb-1 block">Data</label>
+                            <p className="text-white/70 text-sm">
+                              {new Date(selectedMessage.created_at).toLocaleDateString()} às{" "}
+                              {new Date(selectedMessage.created_at).toLocaleTimeString()}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm text-white/40 mb-1 block">Status</label>
+                            <p className={`text-sm font-medium ${
+                              selectedMessage.is_read ? "text-white/50" : "text-blue-400"
+                            }`}>
+                              {selectedMessage.is_read ? "Lida" : "Não lida"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Quick reply via email */}
+                        <div className="pt-4 border-t border-white/5">
+                          <a
+                            href={`mailto:${selectedMessage.email}?subject=Re: Contato VDA — ${selectedMessage.name}`}
+                            className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 text-sm font-medium text-white/60 hover:text-white"
+                          >
+                            <Mail className="w-4 h-4" />
+                            Responder por e-mail
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-12 text-center">
+                      <MessageSquare className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                      <p className="text-white/40">
+                        Selecione uma mensagem para ver os detalhes
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

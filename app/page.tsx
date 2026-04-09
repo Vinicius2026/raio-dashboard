@@ -2,10 +2,20 @@ import dynamic from 'next/dynamic';
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 
-// Lazy load do Footer com SSR desabilitado para melhor performance
+// Lazy load sections below the fold
+const AboutSection = dynamic(() => import("@/components/AboutSection"), {
+  loading: () => <div className="h-64 bg-transparent" />,
+  ssr: true,
+});
+
+const ContactForm = dynamic(() => import("@/components/ContactForm"), {
+  loading: () => <div className="h-64 bg-transparent" />,
+  ssr: false,
+});
+
 const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => <div className="h-32 bg-transparent" />,
-  ssr: false
+  ssr: false,
 });
 
 export default function Home() {
@@ -13,6 +23,8 @@ export default function Home() {
     <main className="min-h-screen app-bg">
       <Header />
       <Hero />
+      <AboutSection />
+      <ContactForm />
       <Footer />
     </main>
   );
