@@ -1,5 +1,6 @@
 'use client'
- 
+import { useEffect } from 'react';
+
 export default function Error({
   error,
   reset,
@@ -7,6 +8,29 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error("ErrorBoundary caught:", error);
+    
+    // Tratamento global para ChunkLoadError (Cache miss após deploy)
+    if (
+      error.name === 'ChunkLoadError' || 
+      error.message.includes('Loading chunk') ||
+      error.message.includes('Failed to fetch dynamically imported module')
+    ) {
+      window.location.reload(); // Forçar limpa de cache e pega chunks novos no servidor
+    }
+  }, [error]);
+
+  const handleReset = () => {
+    // Tenta primeiro o Next.js reset
+    reset();
+    // E tenta reiniciar a window em último caso
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen bg-vda-black flex items-center justify-center px-4">
       <div className="text-center space-y-6 max-w-md">
@@ -27,7 +51,7 @@ export default function Error({
         
         {/* Retry Button */}
         <button
-          onClick={reset}
+          onClick={handleReset}
           className="px-6 py-3 bg-vda-white text-vda-black font-semibold rounded-xl hover:bg-gray-200 transition-colors"
         >
           Tentar Novamente
