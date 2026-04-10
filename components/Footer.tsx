@@ -41,9 +41,7 @@ function Footer() {
           </div>
 
           <p className="text-[10px] text-vda-light-gray/30 max-w-2xl mx-auto leading-relaxed">
-            Este site não faz parte do website do Facebook ou do Facebook Inc.
-            Além disso, este site não é endossado pelo Facebook de nenhuma
-            maneira. FACEBOOK é uma marca comercial da FACEBOOK, Inc.
+            Este site não faz parte dos websites da Meta, do Facebook ou Instagram, nem possui qualquer endosso dessas plataformas. Todo o conteúdo deste site é de responsabilidade exclusiva dos representantes do metodovda.com.
           </p>
         </motion.div>
       </div>

@@ -8,6 +8,11 @@ const AboutSection = dynamic(() => import("@/components/AboutSection"), {
   ssr: true,
 });
 
+const GraduationSection = dynamic(() => import("@/components/GraduationSection"), {
+  loading: () => <div className="h-64 bg-transparent" />,
+  ssr: true,
+});
+
 const ContactForm = dynamic(() => import("@/components/ContactForm"), {
   loading: () => <div className="h-64 bg-transparent" />,
   ssr: false,
@@ -23,6 +28,7 @@ export default function Home() {
     <main className="min-h-screen app-bg">
       <Header />
       <Hero />
+      <GraduationSection />
       <AboutSection />
       <ContactForm />
       <Footer />

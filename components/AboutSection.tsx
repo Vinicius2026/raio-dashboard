@@ -116,20 +116,20 @@ function AboutSection() {
           >
             <button
               onClick={() => setIsVdaOpen(!isVdaOpen)}
-              className="w-full group flex items-center justify-between cursor-pointer rounded-2xl px-4 py-3 -mx-4 hover:bg-white/[0.03] transition-all duration-300"
+              className="w-full group flex flex-col items-center justify-center cursor-pointer rounded-2xl px-4 py-6 -mx-4 hover:bg-white/[0.03] transition-all duration-500"
             >
-              <h3 className="text-2xl md:text-3xl font-black text-vda-white tracking-tight leading-tight">
+              <h3 className="text-2xl md:text-3xl font-black text-vda-white tracking-tight leading-tight mb-4 text-center">
                 O que é a{" "}
                 <span className="bg-gradient-to-r from-[#D4AF37] to-white bg-clip-text text-transparent">
                   VDA
                 </span>
                 ?
               </h3>
-              <div className={`flex items-center gap-2 transition-transform duration-300 ${isVdaOpen ? "rotate-180" : ""}`}>
-                <span className="text-[9px] text-white/20 uppercase tracking-[0.2em] font-medium hidden sm:block group-hover:text-white/40 transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-[9px] text-white/20 uppercase tracking-[0.2em] font-medium group-hover:text-white/40 transition-colors">
                   {isVdaOpen ? "Fechar" : "Saiba mais"}
                 </span>
-                <div className="w-8 h-8 rounded-full border border-white/10 group-hover:border-white/25 flex items-center justify-center transition-all duration-300 group-hover:bg-white/[0.05]">
+                <div className={`w-8 h-8 rounded-full border border-white/10 group-hover:border-white/25 flex items-center justify-center transition-all duration-500 group-hover:bg-white/[0.05] ${isVdaOpen ? "rotate-180" : ""}`}>
                   <ChevronDown className="w-4 h-4 text-white/40 group-hover:text-white/70 transition-colors" />
                 </div>
               </div>
@@ -138,10 +138,14 @@ function AboutSection() {
             <AnimatePresence>
               {isVdaOpen && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                  initial={{ height: 0, opacity: 0, scale: 0.98 }}
+                  animate={{ height: "auto", opacity: 1, scale: 1 }}
+                  exit={{ height: 0, opacity: 0, scale: 0.98 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    ease: [0.16, 1, 0.3, 1], // Custom exponential out ease
+                    opacity: { duration: 0.3 }
+                  }}
                   className="overflow-hidden"
                 >
                   <div className="space-y-4 text-sm text-white/50 leading-relaxed font-light text-center pt-5 pb-2">
