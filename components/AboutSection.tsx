@@ -99,36 +99,41 @@ function AboutSection() {
               a partir de sua própria experiência no campo.
             </p>
             <p>
-              Com uma metodologia focada em tráfego pago e fluxo de vendas
-              sistematizado, já formou centenas de alunos que aprenderam
-              a operar de forma profissional e consistente.
-            </p>
-            <p>
-              Hoje lidera uma equipe dedicada a entregar resultados reais
-              através de treinamento completo, ferramentas exclusivas
-              e suporte contínuo.
+              Uma trajetória real, construída no dia a dia e na vivência do digital.
+              Múltiplos 7 dígitos faturados. Especialista em monetização de redes sociais.
+              Hoje sua dedicação está nas ações sociais que realiza e no método VDA,
+              que ensina a vender produtos selecionados diretamente pelo WhatsApp.
             </p>
           </motion.div>
 
-          {/* Stats row */}
+          {/* O que é a VDA? */}
           <motion.div
             variants={fadeUp}
-            className="flex items-center justify-center gap-6 mt-8 pt-6 border-t border-white/[0.06]"
+            className="mt-10 pt-8 border-t border-white/[0.06]"
           >
-            {[
-              { value: "6", label: "Módulos" },
-              { value: "100+", label: "Alunos" },
-              { value: "4", label: "Bônus" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-xl font-black text-white/80 tracking-tight">
-                  {stat.value}
-                </div>
-                <div className="text-[9px] text-white/25 uppercase tracking-[0.2em] mt-0.5">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+            <h3 className="text-xl md:text-2xl font-black text-center text-vda-white tracking-tight leading-tight mb-5">
+              O que é a{" "}
+              <span className="bg-gradient-to-r from-[#D4AF37] to-white bg-clip-text text-transparent">
+                VDA
+              </span>
+              ?
+            </h3>
+            <div className="space-y-4 text-sm text-white/50 leading-relaxed font-light text-center">
+              <p>
+                Na <strong className="text-white/70 font-medium">VDA — Venda Direta Automática</strong>,
+                ensinamos como vender diariamente pelo WhatsApp. Temos os produtos
+                selecionados, sabemos atrair clientes interessados e realizamos
+                a venda de forma manual e automática.
+              </p>
+              <p>
+                Essa modalidade é uma das de maior acerto, pois o contato com
+                o cliente é imediato. Estude com uma das maiores companhias
+                de venda direta via WhatsApp no Brasil.
+              </p>
+              <p className="text-white/60 font-medium">
+                Clique em comprar ou tire suas dúvidas com o suporte.
+              </p>
+            </div>
           </motion.div>
         </motion.div>
       </div>
