@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -164,6 +165,7 @@ export default function RootLayout({
               alt=""
           />
         </noscript>
+        <CookieBanner />
       </body>
     </html>
   );
