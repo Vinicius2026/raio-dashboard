@@ -1,8 +1,9 @@
 "use client";
 
-import { memo } from "react";
-import { motion } from "framer-motion";
+import { memo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { ChevronDown } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -19,6 +20,8 @@ const stagger = {
 };
 
 function AboutSection() {
+  const [isVdaOpen, setIsVdaOpen] = useState(false);
+
   return (
     <section className="relative py-20 px-4 overflow-hidden">
       {/* Background accent glow */}
@@ -106,35 +109,84 @@ function AboutSection() {
             </p>
           </motion.div>
 
-          {/* O que é a VDA? */}
+          {/* O que é a VDA? — Collapsible */}
           <motion.div
             variants={fadeUp}
             className="mt-10 pt-8 border-t border-white/[0.06]"
           >
-            <h3 className="text-xl md:text-2xl font-black text-center text-vda-white tracking-tight leading-tight mb-5">
-              O que é a{" "}
-              <span className="bg-gradient-to-r from-[#D4AF37] to-white bg-clip-text text-transparent">
-                VDA
-              </span>
-              ?
-            </h3>
-            <div className="space-y-4 text-sm text-white/50 leading-relaxed font-light text-center">
-              <p>
-                Na <strong className="text-white/70 font-medium">VDA — Venda Direta Automática</strong>,
-                ensinamos como vender diariamente pelo WhatsApp. Temos os produtos
-                selecionados, sabemos atrair clientes interessados e realizamos
-                a venda de forma manual e automática.
-              </p>
-              <p>
-                Essa modalidade é uma das de maior acerto, pois o contato com
-                o cliente é imediato. Estude com uma das maiores companhias
-                de venda direta via WhatsApp no Brasil.
-              </p>
-              <p className="text-white/60 font-medium">
-                Clique em comprar ou tire suas dúvidas com o suporte.
-              </p>
-            </div>
+            <button
+              onClick={() => setIsVdaOpen(!isVdaOpen)}
+              className="w-full group flex items-center justify-between cursor-pointer rounded-2xl px-4 py-3 -mx-4 hover:bg-white/[0.03] transition-all duration-300"
+            >
+              <h3 className="text-2xl md:text-3xl font-black text-vda-white tracking-tight leading-tight">
+                O que é a{" "}
+                <span className="bg-gradient-to-r from-[#D4AF37] to-white bg-clip-text text-transparent">
+                  VDA
+                </span>
+                ?
+              </h3>
+              <div className={`flex items-center gap-2 transition-transform duration-300 ${isVdaOpen ? "rotate-180" : ""}`}>
+                <span className="text-[9px] text-white/20 uppercase tracking-[0.2em] font-medium hidden sm:block group-hover:text-white/40 transition-colors">
+                  {isVdaOpen ? "Fechar" : "Saiba mais"}
+                </span>
+                <div className="w-8 h-8 rounded-full border border-white/10 group-hover:border-white/25 flex items-center justify-center transition-all duration-300 group-hover:bg-white/[0.05]">
+                  <ChevronDown className="w-4 h-4 text-white/40 group-hover:text-white/70 transition-colors" />
+                </div>
+              </div>
+            </button>
+
+            <AnimatePresence>
+              {isVdaOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-4 text-sm text-white/50 leading-relaxed font-light text-center pt-5 pb-2">
+                    <p>
+                      Na <strong className="text-white/70 font-medium">VDA — Venda Direta Automática</strong>,
+                      ensinamos como vender diariamente pelo WhatsApp. Temos os produtos
+                      selecionados, sabemos atrair clientes interessados e realizamos
+                      a venda de forma manual e automática.
+                    </p>
+                    <p>
+                      Essa modalidade é uma das de maior acerto, pois o contato com
+                      o cliente é imediato. Estude com uma das maiores companhias
+                      de venda direta via WhatsApp no Brasil.
+                    </p>
+                    <p className="text-white/60 font-medium">
+                      Clique em comprar ou tire suas dúvidas com o suporte.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
+        </motion.div>
+
+        {/* CTA Button — Comprar Acesso VDA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, type: "spring", stiffness: 100, damping: 22 }}
+          className="mt-10 flex justify-center"
+        >
+          <a
+            href="https://metodovda.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#f5d76e] to-[#D4AF37] text-black font-black text-base md:text-lg tracking-wide shadow-[0_8px_40px_rgba(212,175,55,0.25)] hover:shadow-[0_12px_50px_rgba(212,175,55,0.4)] transition-all duration-500 hover:scale-[1.03] active:scale-[0.97] overflow-hidden"
+          >
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1200ms] bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-2xl pointer-events-none" />
+            <span className="relative z-10">Comprar Acesso VDA</span>
+            <svg className="relative z-10 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
         </motion.div>
       </div>
     </section>
